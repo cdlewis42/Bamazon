@@ -43,11 +43,28 @@ function loadProducts() {
 // Prompt the customer for a product ID
 function promptCustomerForItem(inventory) {
   // Prompts user for what they would like to purchase
+  inquirer
+    .prompt([{
+      name: "whichItem",
+      type: "input",
+      message: "Which item ID would you like to purchase?"
+
+    }]).then(promptCustomerForQuantity(answer))
  
 }
 
 // Prompt the customer for a product quantity
 function promptCustomerForQuantity(product) {
+var item = product.whichItem
+connection.query("SELECT * FROM products WHERE item_id=?", item, function (err, res){
+if (err) throw err
+  })
+  inquirer
+    .prompt({
+      name: "howMany",
+      type: "input",
+      message: "How many would you like to purchase?"
+    })
 }
 
 // Purchase the desired quantity of the desired item
