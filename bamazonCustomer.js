@@ -62,6 +62,7 @@ function promptCustomerForQuantity(product) {
     if (err) throw err
     itemName=res[0].product_name
     itemPrice = res[0].price
+    stockQuantity = res[0].stock_quantity
   })
   inquirer
     .prompt({
@@ -70,14 +71,29 @@ function promptCustomerForQuantity(product) {
       message: "How many would you like to purchase?"
     }).then(function (answer2) {
       var quantity = answer2.howMany
-      makePurchase(itemName, quantity)
+      makePurchase(itemName, quantity,itemPrice, stockQuantity,item)
     })
 }
 
 // Purchase the desired quantity of the desired item
-function makePurchase(product, quantity) {
-  //var total = quantity * itemPrice
-  console.log("You have just purchased " + quantity + " " + product + "s.")
+function makePurchase(product, quantity, price, paramStockQuantity,paramItem) {
+  var total = quantity * price
+  console.log("Your total is $" + total + ".")
+  console.log("You have purchased " + quantity + " " + product + "s.")
+
+  var newQuantity = paramStockQuantity - quantity
+  console.log(newQuantity)
+  connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
+        if (err) throw err;
+})
+//connection.query("UPDATE products SET productSales = " + total + " WHERE item_id = " + paramItem, function (err, res) {
+  //if (err) throw err;
+//})
+//if (checkIfShouldExit(onkeydown)){
+//  }
+//else{
+// loadProducts()
+//}
 }
 
 // Check to see if the product the user chose exists in the inventory
