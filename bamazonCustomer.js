@@ -19,7 +19,7 @@ var connection = mysql.createConnection({
 });
 
 // Creates the connection with the server and loads the product data upon a successful connection
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) {
     console.error("error connecting: " + err.stack);
   }
@@ -29,7 +29,7 @@ connection.connect(function(err) {
 // Function to load the products table from the database and print results to the console
 function loadProducts() {
   // Selects all of the data from the MySQL products table
-  connection.query("SELECT * FROM products", function(err, res) {
+  connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
 
     // Draw the table in the terminal using the response
@@ -49,32 +49,40 @@ function promptCustomerForItem(inventory) {
       type: "input",
       message: "Which item ID would you like to purchase?"
 
-    }]).then(promptCustomerForQuantity(answer))
- 
+    }]).then(function (answer) {
+      promptCustomerForQuantity(answer)
+    })
+
 }
 
 // Prompt the customer for a product quantity
 function promptCustomerForQuantity(product) {
-var item = product.whichItem
-connection.query("SELECT * FROM products WHERE item_id=?", item, function (err, res){
-if (err) throw err
+  var item = product.whichItem
+  connection.query("SELECT * FROM products WHERE item_id=?", item, function (err, res) {
+    if (err) throw err
+    itemName=res[0].product_name
+    itemPrice = res[0].price
   })
   inquirer
     .prompt({
       name: "howMany",
       type: "input",
       message: "How many would you like to purchase?"
+    }).then(function (answer2) {
+      var quantity = answer2.howMany
+      makePurchase(itemName, quantity)
     })
 }
 
 // Purchase the desired quantity of the desired item
 function makePurchase(product, quantity) {
-  
+  //var total = quantity * itemPrice
+  console.log("You have just purchased " + quantity + " " + product + "s.")
 }
 
 // Check to see if the product the user chose exists in the inventory
 function checkInventory(choiceId, inventory) {
- 
+
 }
 
 // Check to see if the user wants to quit the program
