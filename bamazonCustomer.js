@@ -63,6 +63,7 @@ function promptCustomerForQuantity(product) {
     itemName=res[0].product_name
     itemPrice = res[0].price
     stockQuantity = res[0].stock_quantity
+    sales_total = res[0].product_sales
   })
   inquirer
     .prompt({
@@ -71,13 +72,14 @@ function promptCustomerForQuantity(product) {
       message: "How many would you like to purchase?"
     }).then(function (answer2) {
       var quantity = answer2.howMany
-      makePurchase(itemName, quantity,itemPrice, stockQuantity,item)
+      makePurchase(itemName, quantity,itemPrice, stockQuantity,item,sales_total)
     })
 }
 
 // Purchase the desired quantity of the desired item
-function makePurchase(product, quantity, price, paramStockQuantity,paramItem) {
+function makePurchase(product, quantity, price, paramStockQuantity,paramItem,paramSales) {
   var total = quantity * price
+  var newSalesTotal = paramSales + total
   console.log("Your total is $" + total + ".")
   console.log("You have purchased " + quantity + " " + product + "s.")
 
@@ -86,8 +88,11 @@ function makePurchase(product, quantity, price, paramStockQuantity,paramItem) {
   connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
         if (err) throw err;
 })
+connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHERE item_id = " + paramItem, function (err, res) {
+  if (err) throw err;
+})
 //connection.query("UPDATE products SET productSales = " + total + " WHERE item_id = " + paramItem, function (err, res) {
-  //if (err) throw err;
+//if (err) throw err;
 //})
 //if (checkIfShouldExit(onkeydown)){
 //  }
