@@ -72,7 +72,16 @@ function promptCustomerForQuantity(product) {
       message: "How many would you like to purchase?"
     }).then(function (answer2) {
       var quantity = answer2.howMany
+
+      if (quantity > stockQuantity){
+        console.log("We do not have that many in inventory. We do have " + 
+        stockQuantity + " in inventory.")
+    
+        loadProducts()
+      }
+      else{
       makePurchase(itemName, quantity,itemPrice, stockQuantity,item,sales_total)
+      }
     })
 }
 
@@ -103,11 +112,6 @@ connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHER
       var shouldQuitAnswer = answer.shouldQuit
       checkIfShouldExit(shouldQuitAnswer)
     })
-}
-
-// Check to see if the product the user chose exists in the inventory
-function checkInventory(choiceId, inventory) {
-
 }
 
 // Check to see if the user wants to quit the program
