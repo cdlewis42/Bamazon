@@ -80,25 +80,29 @@ function promptCustomerForQuantity(product) {
 function makePurchase(product, quantity, price, paramStockQuantity,paramItem,paramSales) {
   var total = quantity * price
   var newSalesTotal = paramSales + total
+
   console.log("Your total is $" + total + ".")
   console.log("You have purchased " + quantity + " " + product + "s.")
 
   var newQuantity = paramStockQuantity - quantity
-  console.log(newQuantity)
-  connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
+
+connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
         if (err) throw err;
 })
 connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHERE item_id = " + paramItem, function (err, res) {
   if (err) throw err;
 })
-//connection.query("UPDATE products SET productSales = " + total + " WHERE item_id = " + paramItem, function (err, res) {
-//if (err) throw err;
-//})
-//if (checkIfShouldExit(onkeydown)){
-//  }
-//else{
-// loadProducts()
-//}
+  inquirer
+    .prompt({
+      name: "shouldQuit",
+      type: "list",
+      message: "Quit or Continue?",
+      choices: ["Quit", "Continue"]
+
+    }).then(function(answer){
+      var shouldQuitAnswer = answer.shouldQuit
+      checkIfShouldExit(shouldQuitAnswer)
+    })
 }
 
 // Check to see if the product the user chose exists in the inventory
@@ -108,9 +112,12 @@ function checkInventory(choiceId, inventory) {
 
 // Check to see if the user wants to quit the program
 function checkIfShouldExit(choice) {
-  if (choice.toLowerCase() === "q") {
+  if (choice.toLowerCase() === "quit") {
     // Log a message and exit the current node process
     console.log("Goodbye!");
     process.exit(0);
+  }
+  else{
+    loadProducts()
   }
 }
