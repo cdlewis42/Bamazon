@@ -50,7 +50,16 @@ function promptCustomerForItem(inventory) {
       message: "Which item ID would you like to purchase?"
 
     }]).then(function (answer) {
-      promptCustomerForQuantity(answer)
+      var item = answer.whichItem
+      connection.query("SELECT * FROM products WHERE item_id=?", item, function (err, res) {
+        if (err) throw err
+        if (res.length === 0) {
+          console.log("Please enter an ID.")
+          promptCustomerForItem()
+        } else {
+          promptCustomerForQuantity(answer)
+        }
+      })
     })
 
 }
@@ -60,7 +69,8 @@ function promptCustomerForQuantity(product) {
   var item = product.whichItem
   connection.query("SELECT * FROM products WHERE item_id=?", item, function (err, res) {
     if (err) throw err
-    itemName=res[0].product_name
+
+    itemName = res[0].product_name
     itemPrice = res[0].price
     stockQuantity = res[0].stock_quantity
     sales_total = res[0].product_sales
@@ -73,20 +83,19 @@ function promptCustomerForQuantity(product) {
     }).then(function (answer2) {
       var quantity = answer2.howMany
 
-      if (quantity > stockQuantity){
-        console.log("We do not have that many in inventory. We do have " + 
-        stockQuantity + " in inventory.")
-    
+      if (quantity > stockQuantity) {
+        console.log("We do not have that many in inventory. We do have " +
+          stockQuantity + " in inventory.")
+
         loadProducts()
-      }
-      else{
-      makePurchase(itemName, quantity,itemPrice, stockQuantity,item,sales_total)
+      } else {
+        makePurchase(itemName, quantity, itemPrice, stockQuantity, item, sales_total)
       }
     })
 }
 
 // Purchase the desired quantity of the desired item
-function makePurchase(product, quantity, price, paramStockQuantity,paramItem,paramSales) {
+function makePurchase(product, quantity, price, paramStockQuantity, paramItem, paramSales) {
   var total = quantity * price
   var newSalesTotal = paramSales + total
 
@@ -95,12 +104,12 @@ function makePurchase(product, quantity, price, paramStockQuantity,paramItem,par
 
   var newQuantity = paramStockQuantity - quantity
 
-connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
-        if (err) throw err;
-})
-connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHERE item_id = " + paramItem, function (err, res) {
-  if (err) throw err;
-})
+  connection.query("UPDATE products SET stock_quantity = " + newQuantity + " WHERE item_id = " + paramItem, function (err, res) {
+    if (err) throw err;
+  })
+  connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHERE item_id = " + paramItem, function (err, res) {
+    if (err) throw err;
+  })
   inquirer
     .prompt({
       name: "shouldQuit",
@@ -108,7 +117,7 @@ connection.query("UPDATE products SET product_sales = " + newSalesTotal + " WHER
       message: "Quit or Continue?",
       choices: ["Quit", "Continue"]
 
-    }).then(function(answer){
+    }).then(function (answer) {
       var shouldQuitAnswer = answer.shouldQuit
       checkIfShouldExit(shouldQuitAnswer)
     })
@@ -120,8 +129,7 @@ function checkIfShouldExit(choice) {
     // Log a message and exit the current node process
     console.log("Goodbye!");
     process.exit(0);
-  }
-  else{
+  } else {
     loadProducts()
   }
 }
